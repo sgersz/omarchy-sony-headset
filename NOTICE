@@ -1,0 +1,13 @@
+This is an unofficial community plugin, not a Sony or Omarchy product.
+
+Sony Device Center (MIT): https://github.com/marconvcm/sony-device-center
+Copyright (c) 2020 Nir Harel, Mor Gal, Sem Visscher, jimzrt,
+guilhermealbm, and other contributors.
+Bluetooth transport, device discovery, and Sony protocol support belong to
+that separate dependency. No backend binaries or firmware are bundled here.
+
+Omarchy (MIT): https://github.com/omacom/omarchy
+The plugin uses Omarchy's installed qs.Ui and qs.Commons component libraries.
+Those libraries are not bundled in this release.
+
+Sony, WH-1000XM5, and related marks belong to their respective owners.

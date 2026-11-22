@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "steve.sony",
+  "name": "Sony Headset",
+  "version": "1.1.0",
+  "author": "Steve",
+  "license": "MIT",
+  "description": "Sony Device Center controls for the Omarchy bar",
+  "kinds": ["service", "bar-widget"],
+  "keepLoaded": true,
+  "entryPoints": {"service": "Service.qml", "barWidget": "Panel.qml"},
+  "barWidget": {
+    "displayName": "Sony Headset",
+    "category": "Audio",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

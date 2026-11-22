@@ -1,0 +1,19 @@
+{
+  "title": "Sony Headset", "firmware": "Firmware %1", "disconnected": "Headphones disconnected",
+  "connecting": "Connecting through Sony Device Center…", "noise": "Noise control", "eq": "Equalizer",
+  "features": "Features", "listening": "Listening mode", "cancelling": "ANC", "ambient": "Ambient",
+  "off": "Off", "ambientLevel": "Ambient sound · %1 / 20", "focusVoice": "Focus on voice",
+  "noiseHint": "Settings are shared with Sony Device Center and the headphones. Changes made elsewhere appear here automatically.",
+  "eqUnavailable": "Custom EQ is available for supported five-band headsets, including WH-1000XM5.",
+  "preset": "Equalizer preset", "clearBass": "Clear Bass · %1", "applyEq": "Apply custom EQ",
+  "discard": "Discard", "dsee": "DSEE Extreme", "speakToChat": "Speak-to-Chat", "adaptiveVolume": "Adaptive volume",
+  "unavailable": "The headset has not returned a valid reading for this setting.", "autoPowerOff": "Auto power-off",
+  "minutes": {"one": "%1 minute", "other": "%1 minutes"}, "hour": "1 hour", "hours": {"one": "%1 hour", "other": "%1 hours"}, "refresh": "Refresh",
+  "reconnect": "Reconnect", "fullApp": "Full app",
+  "never": "Do not turn off", "whenRemoved": "When taken off (about 15 min)",
+  "connected": "Connected", "unknown": "Unknown", "deviceInfo": "%1 · Firmware %2",
+  "bright": "Bright", "excited": "Excited", "mellow": "Mellow", "relaxed": "Relaxed",
+  "vocal": "Vocal", "trebleBoost": "Treble boost", "bassBoost": "Bass boost", "speech": "Speech", "manual": "Manual",
+  "clearBassName": "Clear Bass", "firmwareHelp": "Firmware & updates",
+  "firmwareHint": "Install firmware updates with Sony Sound Connect on your phone. This opens Sony’s official support page."
+}

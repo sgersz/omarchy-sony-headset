@@ -1,0 +1,114 @@
+import QtQuick
+import Quickshell
+import qs.Commons
+import "@PLUGIN@" as Sony
+import "@PLUGIN@/Model.js" as Model
+
+ShellRoot {
+  id: testRoot
+  property var raw: ({connected:true,address:"00:00:00:00:00:01",name:"WH-1000XM5",codec:"LDAC",firmware:"2.5.1",
+    capabilities:{anc:true,ambient:true,equalizer:true,clearBass:true,autoPowerOff:true},
+    features:{noiseControl:{availability:"valid"},equalizer:{availability:"valid"},autoPowerOff:{availability:"valid"}},
+    noiseControl:{mode:"ambient",ambientLevel:17,focusOnVoice:true},
+    equalizer:{preset:160,clearBass:0,bands:[-3,0,3,-2,3]},autoPowerOff:5})
+  QtObject {
+    id: backend
+    property var state: Model.reconcile(null,testRoot.raw)
+    property bool available: true
+    property bool busy: false
+    property bool allowSend: true
+    property int revision: 0
+    property var sent: ({})
+    signal commandFinished(string method, bool success)
+    function refresh() {}
+    function send(method, params) { sent={method:method,params:params}; return allowSend; }
+  }
+  QtObject {
+    id: host
+    property QtObject shell: QtObject { function serviceFor(name) { return backend; } }
+    property string position: "top"
+    property bool vertical: false
+    property bool foregroundAnimationEnabled: false
+    property int barSize: 30
+    property string fontFamily: Style.font.family
+    property color barForeground: "white"
+    property color foreground: "white"
+    property color urgent: "red"
+    property color background: "black"
+    function hideTooltip(item) {}
+    function registerClickTarget(item) {}
+    function unregisterClickTarget(item) {}
+  }
+  Sony.Panel { id: panel; bar: host }
+  Sony.Service {
+    id: service
+    property int step: 0
+    onCommandFinished: function(method, success) {
+      try {
+        check(method==="eqCustom","Service lost command method");
+        if (step===0) {
+          check(success && state.equalizer.bands[0]===5,"Service did not collect successful command response");
+          step=1;
+          Qt.callLater(function() { service.send("eqCustom",{clearBass:0,bands:[99,0,0,0,0]}); });
+        } else {
+          check(!success && commandError!=="","Service did not expose command failure");
+          var previous=state;
+          check(!accept('{"ok":true,"data":{}}',false),"Service accepted malformed state");
+          check(!available && state===previous,"Malformed state replaced last reading");
+          console.log("SONY_PANEL_QA_PASS"); Qt.quit();
+        }
+      } catch (error) { console.error("SONY_PANEL_QA_FAIL: "+error); Qt.quit(); }
+    }
+  }
+  function check(value, message) { if (!value) throw new Error(message); }
+  function find(object, name) {
+    if (object.objectName===name) return object;
+    var children=object.data || object.children || [];
+    for (var i=0; i<children.length; i++) { var found=find(children[i],name); if (found) return found; }
+    return null;
+  }
+  Timer {
+    interval: 500; running: true
+    onTriggered: {
+      try {
+        panel.syncEq();
+        check(panel.eqDraft[0]===-3,"EQ initial state");
+        panel.setBand(0,5);
+        panel.applyEq("eqCustom",{clearBass:0,bands:panel.eqDraft});
+        backend.commandFinished("eqCustom",false);
+        backend.revision++;
+        check(panel.eqDirty && panel.eqDraft[0]===5,"Failed EQ save lost draft");
+        backend.allowSend=false;
+        panel.applyEq("eqCustom",{clearBass:0,bands:panel.eqDraft});
+        check(panel.pendingEq==="" && panel.eqDirty,"Rejected EQ send lost draft or stayed pending");
+        backend.allowSend=true;
+        panel.applyEq("eqCustom",{clearBass:0,bands:panel.eqDraft});
+        backend.state.equalizer.bands=[5,0,3,-2,3];
+        backend.commandFinished("eqCustom",true);
+        check(!panel.eqDirty && panel.eqDraft[0]===5,"Successful save did not synchronize");
+        panel.setMode("ambient");
+        check(backend.sent.params.level===17 && backend.sent.params.focusOnVoice,"Ambient preference lost");
+        panel.setBand(0,8);
+        testRoot.raw.address="00:00:00:00:00:02";
+        backend.state=Model.reconcile(backend.state,testRoot.raw); backend.revision++;
+        check(!panel.eqDirty && panel.eqDraft[0]===-3,"Draft transferred to another headset");
+        var popup=find(panel,"headsetPopup");
+        check(popup!==null,"Popup missing");
+        popup.ensureContent();
+        var preset=find(popup.loadedContent,"eqPreset");
+        var power=find(popup.loadedContent,"autoPowerOff");
+        check(preset && power,"Dropdowns missing");
+        preset.value="22"; preset.changed("22");
+        check(preset.value==="160","Preset binding was lost after selection");
+        backend.state=Model.reconcile(backend.state,Object.assign({},testRoot.raw,{autoPowerOff:4}));
+        check(power.value==="4","Power-off binding did not follow state");
+        power.value="1"; power.changed("1");
+        check(power.value==="4","Power-off binding was lost after selection");
+        backend.available=false;
+        check(!panel.connected && !panel.valid("equalizer"),"Disconnected controls stayed active");
+        check(service.available && service.state.connected,"Isolated simulated service is not ready");
+        check(service.send("eqCustom",{clearBass:0,bands:[5,0,3,-2,3]}),"Service rejected valid command");
+      } catch (error) { console.error("SONY_PANEL_QA_FAIL: "+error); Qt.quit(); }
+    }
+  }
+}
