@@ -35,6 +35,44 @@ Python 3 is required at runtime. Node.js is only needed for the JavaScript tests
 
 ## Install
 
+### Native Omarchy install
+
+Install Sony Device Center first, as described above. Close its full application
+window for the initial setup, then run:
+
+```sh
+systemctl --user enable --now sonyd.service
+omarchy plugin add https://github.com/sgersz/omarchy-sony-headset.git --enable
+```
+
+This clones the repository into Omarchy's plugin directory and enables the bar
+widget. The plugin command does not install the separate backend package or
+start its service for you. After this one-time setup, the full application can
+remain closed and the daemon starts automatically when you log in.
+
+Native installations can be updated with:
+
+```sh
+omarchy plugin update steve.sony
+```
+
+### Clone a specific release
+
+You can also clone the tested release and use its standalone installer:
+
+```sh
+git clone --branch v1.1.0 --depth 1 https://github.com/sgersz/omarchy-sony-headset.git
+cd omarchy-sony-headset
+python3 install.py --check
+python3 install.py
+```
+
+The standalone installer copies the plugin files rather than keeping a Git
+checkout. Use the native method above for `omarchy plugin update` support;
+standalone installations are updated by running a newer installer.
+
+### Download a release ZIP
+
 Download the [v1.1.0 community beta ZIP](https://github.com/sgersz/omarchy-sony-headset/releases/download/v1.1.0/omarchy-sony-headset-1.1.0.zip),
 extract it, open a terminal in the extracted directory, and run:
 
@@ -111,8 +149,8 @@ new device. Pair headphones in Omarchy's Bluetooth panel first. If a phone app
 holds the headset's control connection, close that app while troubleshooting.
 Runtime diagnostics may include device identifiers; redact them before posting.
 
-Disable the bar entry with `omarchy plugin disable steve.sony`. Its directory
-can then be removed manually. If you no longer use the backend anywhere, stop
+Disable the bar entry with `omarchy plugin disable steve.sony`, or uninstall
+the plugin with `omarchy plugin remove steve.sony`. If you no longer use the backend anywhere, stop
 its automatic startup separately with `systemctl --user disable --now sonyd.service`.
 
 ## Development and QA
